@@ -53,6 +53,24 @@ module ``about the stock example`` =
           "2012-03-02,32.31,32.44,32.00,32.08,47314200,32.08";
           "2012-03-01,31.93,32.39,31.85,32.29,77344100,32.29";
           "2012-02-29,31.89,32.00,31.61,31.74,59323600,31.74"; ]
+
+    let parsePrice (x:string) = System.Double.Parse(x, System.Globalization.CultureInfo.InvariantCulture)
+
+    let closingDifference (row:array<string>) =
+        let date = row.[0]
+        let _open = parsePrice row.[1]
+        let close = parsePrice row.[4]
+        (date, abs <| _open - close)
+
+    let priceData = 
+        stockData 
+            |> Seq.skip 1 
+            |> Seq.map (fun row -> row.Split([|','|]))
+            |> Seq.map closingDifference
+
+    let maxDiff =
+        priceData
+            |> Seq.maxBy (fun (_date, diff) -> diff)
     
     // Feel free to add extra [<Koan>] members here to write
     // tests for yourself along the way. You can also try 
@@ -60,6 +78,6 @@ module ``about the stock example`` =
 
     [<Koan>]
     let YouGotTheAnswerCorrect() =
-        let result =  __
+        let result, diff = maxDiff
         
         AssertEquality "2012-03-13" result
